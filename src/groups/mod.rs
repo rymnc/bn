@@ -902,21 +902,19 @@ pub fn pairing(p: &G1, q: &G2) -> Fq12 {
 }
 
 pub fn pairing_batch(ps: &[G1], qs: &[G2]) -> Fq12 {
-    let mut p_affines: Vec<AffineG<G1Params>> = Vec::new();
-    let mut q_precomputes: Vec<G2Precomp> = Vec::new();
-    for (p, q) in ps.into_iter().zip(qs.into_iter()) {
-
+    let capacity = ps.len().min(qs.len());
+    let mut p_affines: Vec<AffineG<G1Params>> = Vec::with_capacity(capacity);
+    let mut q_precomputes: Vec<G2Precomp> = Vec::with_capacity(capacity);
+    for (p, q) in ps.iter().zip(qs.iter()) {
         let p_affine = p.to_affine();
         let q_affine = q.to_affine();
-        let exists = match(p_affine, q_affine)
-        {
-            (None, _) | (_, None) => false,
-            (Some(_p_affine), Some(_q_affine)) => true,
-        };
 
-        if exists {
-            p_affines.push(p.to_affine().unwrap());
-            q_precomputes.push(q.to_affine().unwrap().precompute());
+        match (p_affine, q_affine) {
+            (Some(p_affine), Some(q_affine)) => {
+                p_affines.push(p_affine);
+                q_precomputes.push(q_affine.precompute());
+            },
+            _ => {}
         }
     }
     if q_precomputes.len() == 0 {

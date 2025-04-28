@@ -613,8 +613,9 @@ pub fn pairing(p: G1, q: G2) -> Gt {
 }
 
 pub fn pairing_batch(pairs: &[(G1, G2)]) -> Gt {
-    let mut ps : Vec<groups::G1> = Vec::new();
-    let mut qs : Vec<groups::G2> = Vec::new();
+    let capacity = pairs.len();
+    let mut ps : Vec<groups::G1> = Vec::with_capacity(capacity);
+    let mut qs : Vec<groups::G2> = Vec::with_capacity(capacity);
     for (p, q) in pairs {
         ps.push(p.0);
         qs.push(q.0);
